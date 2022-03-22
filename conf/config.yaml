@@ -1,7 +1,8 @@
 hydra:
   run:
-    dir: ./outputs/${now:%Y-%m-%d-%H-%M-%S}/
+    dir: ./outputs/${blur.exp_name}/${now:%Y-%m-%d-%H-%M-%S}/
 blur:
+  exp_name: test
   model:
     warmup: null
     cnn:
