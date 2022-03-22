@@ -21,7 +21,6 @@ class BlurClass(nn.Module):
         k: kernel, cx1xhxw
         '''
         with torch.no_grad():
-            k = torch.stack([k, k, k], dim=1).squeeze(2).permute(1, 0, 2, 3)
             x = pad(x, pad=((k.shape[-2] - 1) // 2,(k.shape[-2] - 1) // 2, (k.shape[-1] - 1) // 2,(k.shape[-1] - 1) // 2), mode='circular')
             x = conv2d(x, k, groups=x.shape[1])
         return x

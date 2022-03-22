@@ -97,4 +97,6 @@ def get_matrix(path,tp):
         torch.FloatTensor).unsqueeze(0).unsqueeze(0)
     bkt = torch.from_numpy(blur_kernel_trans.copy()).type(
         torch.FloatTensor).unsqueeze(0).unsqueeze(0)
+    bk = torch.stack([bk, bk, bk], dim=1).squeeze(2).permute(1, 0, 2, 3)
+    bkt = torch.stack([bkt, bkt, bkt], dim=1).squeeze(2).permute(1, 0, 2, 3)
     return bk, bkt

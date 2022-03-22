@@ -49,8 +49,7 @@ def main(config):
         model.module.load_state_dict(torch.load(
             config.blur.model.cnn.pretrained, map_location='cpu'))
     model=model.to(f'cuda:{config.blur.train.devices[0]}')
-    if len(config.blur.train.devices)>1:
-        model = DataParallel(model, device_ids=config.blur.train.devices)
+    model = DataParallel(model, device_ids=config.blur.train.devices)
     
 
     ## optimizer and scheduler
@@ -91,6 +90,7 @@ def main(config):
             logger.add_scalar('train/batchPSNR',batchPSNR,e*len(trainLoader)+b)
             logger.add_scalar('train/batchLoss', loss.item(),
                                 e*len(trainLoader)+b)
+
             logger.add_scalar('train/tau',model.module.f.tau.data.item(), e*len(trainLoader)+b)
             epochPSNR+=loss.item()
             if b%15==0:
