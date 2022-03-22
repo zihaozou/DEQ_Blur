@@ -79,7 +79,7 @@ def dataPrepare(trainPath,valPath,patchSize,patchPerImg,device):
             patchedImgList.append(patchedImg)
         valImgs = torch.cat(patchedImgList, dim=0)
     
-    return trainImgs,valImgs
+    return trainImgs.detach(),valImgs.detach()
 
 
 def get_matrix(path,tp):

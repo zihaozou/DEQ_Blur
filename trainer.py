@@ -21,6 +21,7 @@ from torch.nn.functional import mse_loss
 def main(config):
     ## dataset
     trainset,valset=dataPrepare(config.blur.data.train_path,config.blur.data.val_path,config.blur.data.patch_size,config.blur.data.patch_per_img,config.blur.train.devices[0])
+    torch.cuda.empty_cache()
     bk,bkt=get_matrix(config.blur.data.kernel_path,config.blur.data.kernel_type)
     if config.blur.data.fixed_noise:
         trainset = (trainset, BlurClass.imfilter(
