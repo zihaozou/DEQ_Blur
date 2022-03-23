@@ -119,7 +119,6 @@ def main(config):
             logger.add_scalar('train/batchPSNR',batchPSNR,e*len(trainLoader)+b)
             logger.add_scalar('train/batchLoss', loss.item(),
                                 e*len(trainLoader)+b)
-
             logger.add_scalar('train/tau',model.module.f.tau.data.item(), e*len(trainLoader)+b)
             epochPSNR+=loss.item()
             bar.set_description(f'{b}:PSNR={batchPSNR:.2f}')

@@ -1,6 +1,6 @@
 hydra:
   run:
-    dir: ./outputs/${blur.exp_name}/${now:%Y-%m-%d-%H-%M-%S}/
+    dir: ./outputs/pretrain-${blur.exp_name}_k-${blur.data.kernel_type}_sigma-${blur.data.sigma}/${now:%Y-%m-%d-%H-%M-%S}/
 blur:
   exp_name: best5
   model:
@@ -20,7 +20,7 @@ blur:
         tol: 1e-5
   data:
     hard_disk: "."
-    train_path: /export1/project/Data_shirin/Data/Set5 #["/export1/project/Data_shirin/Data/DIV2K","/export1/project/Data_shirin/Data/CBSD400"]
+    train_path: ["/export1/project/Data_shirin/Data/DIV2K","/export1/project/Data_shirin/Data/CBSD400"]
     val_path: /export1/project/Data_shirin/Data/Set5
     three_imgs_path: /export1/project/zihao/DEQ_Blur/set3c
     kernel_path: /export1/project/zihao/DEQ_Blur/kernels/L09.mat
