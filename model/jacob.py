@@ -11,9 +11,8 @@ class jacobinNet(nn.Module):
         self.dnn = dnn
 
     def forward(self, x, create_graph, strict):
-        f=lambda x: self.dnn(x).mean([1,2,3]).sum()
         J = autograd.functional.jacobian(
-            f, x, create_graph=create_graph, strict=strict)
+            self.dnn, x, create_graph=create_graph, strict=strict)
 
         # N = self.dnn(x)
         # JN = autograd.grad(N, x, grad_outputs=x - N, create_graph=create_graph, retain_graph=retain_graph, only_inputs=only_inputs)[0]

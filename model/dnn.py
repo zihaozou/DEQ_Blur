@@ -23,4 +23,4 @@ class DnCNN(nn.Module):
         self.dncnn_3 = nn.Sequential(*layers)
 
     def forward(self, x):
-        return self.dncnn_3(x)
+        return self.dncnn_3(x).mean([1,2,3]).sum()

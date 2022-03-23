@@ -1,3 +1,6 @@
 outputs/
 .devcontainer/
 *__pycache__/
+best5.pt
+kernels/
+set3c/

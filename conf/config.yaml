@@ -2,11 +2,11 @@ hydra:
   run:
     dir: ./outputs/${blur.exp_name}/${now:%Y-%m-%d-%H-%M-%S}/
 blur:
-  exp_name: test
+  exp_name: best5
   model:
     warmup: null
     cnn:
-      pretrained: /model_zoo/best5.pt
+      pretrained: /export1/project/zihao/DEQ_Blur/best5.pt
       depth: 12
       in_chans: 3
       out_chans: 3
@@ -19,22 +19,23 @@ blur:
       kwargs:
         tol: 1e-5
   data:
-    train_path: /DIV2K_A
-    val_path: /Set5
-    three_imgs_path: /set3c
-    kernel_path: /kernels/L09.mat
+    hard_disk: "."
+    train_path: /export1/project/Data_shirin/Data/Set5 #["/export1/project/Data_shirin/Data/DIV2K","/export1/project/Data_shirin/Data/CBSD400"]
+    val_path: /export1/project/Data_shirin/Data/Set5
+    three_imgs_path: /export1/project/zihao/DEQ_Blur/set3c
+    kernel_path: /export1/project/zihao/DEQ_Blur/kernels/L09.mat
     kernel_type: k4
     fixed_noise: true
     sigma: 2.55
     patch_size: 256
-    patch_per_img: 2
-    batch_size: 2
+    patch_per_img: 5
+    batch_size: 8
     num_workers: 8
     test_overlap: 30
   train:
     num_epoches: 30
 
-    devices: [0]
+    devices: [0,1]
     optimizer:
       type: Adam
       kwargs:

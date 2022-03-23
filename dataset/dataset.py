@@ -1,3 +1,4 @@
+from genericpath import isfile
 from torch.utils.data.dataset import Dataset
 import torch
 from sklearn.feature_extraction.image import extract_patches_2d
@@ -8,7 +9,7 @@ from PIL.Image import open as imopen
 import numpy as np
 from torch.nn.functional import pad,unfold
 from scipy.io import loadmat
-
+from omegaconf import ListConfig
 from model.blur import BlurClass
 class BlurDataset(Dataset):
     def __init__(self, gdt, y=None):
@@ -49,36 +50,40 @@ def patchImg(imPath, patchSize, device, patchPerImg):
 def dataPrepare(trainPath,valPath,patchSize,patchPerImg,device):
     #train
     patchedImgList = []
-    if isinstance(trainPath,list):
+    if isinstance(trainPath,ListConfig):
         for p in trainPath:
             imList = listdir(p)
             for imName in imList:
-                patchedImg = patchImg(
-                    join(p, imName), patchSize=patchSize, device=device, patchPerImg=patchPerImg)
-                patchedImgList.append(patchedImg)
+                if isfile(join(p, imName)):
+                    patchedImg = patchImg(
+                        join(p, imName), patchSize=patchSize, device=device, patchPerImg=patchPerImg)
+                    patchedImgList.append(patchedImg)
         trainImgs = torch.cat(patchedImgList,dim=0)
     else:
         imList = listdir(trainPath)
         for imName in imList:
-            patchedImg = patchImg(
-                join(trainPath, imName), patchSize=patchSize, device=device, patchPerImg=patchPerImg)
-            patchedImgList.append(patchedImg)
+            if isfile(join(trainPath, imName)):
+                patchedImg = patchImg(
+                    join(trainPath, imName), patchSize=patchSize, device=device, patchPerImg=patchPerImg)
+                patchedImgList.append(patchedImg)
         trainImgs = torch.cat(patchedImgList, dim=0)
     patchedImgList = []
-    if isinstance(valPath, list):
+    if isinstance(valPath, ListConfig):
         for p in valPath:
             imList = listdir(p)
             for imName in imList:
-                patchedImg = patchImg(
-                    join(p, imName), patchSize=patchSize, device=device, patchPerImg=patchPerImg)
-                patchedImgList.append(patchedImg)
+                if isfile(join(p, imName)):
+                    patchedImg = patchImg(
+                        join(p, imName), patchSize=patchSize, device=device, patchPerImg=patchPerImg)
+                    patchedImgList.append(patchedImg)
         valImgs = torch.cat(patchedImgList, dim=0)
     else:
         imList = listdir(valPath)
         for imName in imList:
-            patchedImg = patchImg(
-                join(valPath, imName), patchSize=patchSize, device=device, patchPerImg=patchPerImg)
-            patchedImgList.append(patchedImg)
+            if isfile(join(valPath, imName)):
+                patchedImg = patchImg(
+                    join(valPath, imName), patchSize=patchSize, device=device, patchPerImg=patchPerImg)
+                patchedImgList.append(patchedImg)
         valImgs = torch.cat(patchedImgList, dim=0)
     
     return trainImgs.detach(),valImgs.detach()
@@ -86,7 +91,7 @@ def dataPrepare(trainPath,valPath,patchSize,patchPerImg,device):
 
 class BlurDatasetHD(Dataset):
     def __init__(self, path):
-        super(BlurDataset, self).__init__()
+        super(BlurDatasetHD, self).__init__()
         self.lst=listdir(path)
         self.path=path
 
@@ -120,7 +125,8 @@ def patchNSave(imPath, patchSize, device, patchPerImg,savePath,fixedNoise,*args)
         imName = imPath.split('/')[-1].split('.')[0]
         if fixedNoise:
             y=BlurClass.imfilter(
-                im, args[0])+torch.FloatTensor(im.size()).normal_(0, std=args[1]/255.)
+                im.unsqueeze(0), args[0])+torch.FloatTensor(im.size()).normal_(0, std=args[1]/255.)
+            y=y.squeeze()
             torch.save((im, y), join(savePath, f'{imName}_{ii}.pt'))
         else:
             torch.save(im, join(savePath, f'{imName}_{ii}.pt'))
@@ -130,29 +136,33 @@ def dataPrepareHD(trainPath, valPath, patchSize, patchPerImg, fixedNoise, savePa
     mkdir(join(savePath,'train'))
     mkdir(join(savePath,'val'))
 
-    if isinstance(trainPath, list):
+    if isinstance(trainPath, ListConfig):
         for p in trainPath:
             imList = listdir(p)
             for imName in imList:
-                patchNSave(
-                    join(p, imName), patchSize, device, patchPerImg, join(savePath, 'train'), fixedNoise, *args)
+                if isfile(join(p, imName)):
+                    patchNSave(
+                        join(p, imName), patchSize, device, patchPerImg, join(savePath, 'train'), fixedNoise, *args)
     else:
         imList = listdir(trainPath)
         for imName in imList:
-            patchNSave(
-                join(trainPath, imName), patchSize, device, patchPerImg, join(savePath, 'train'), fixedNoise, *args)
+            if isfile(join(trainPath, imName)):
+                patchNSave(
+                    join(trainPath, imName), patchSize, device, patchPerImg, join(savePath, 'train'), fixedNoise, *args)
     
-    if isinstance(valPath, list):
+    if isinstance(valPath, ListConfig):
         for p in valPath:
             imList = listdir(p)
             for imName in imList:
-                patchNSave(
-                    join(p, imName), patchSize, device, patchPerImg, join(savePath,'val'), fixedNoise, *args)
+                if isfile(join(p, imName)):
+                    patchNSave(
+                        join(p, imName), patchSize, device, patchPerImg, join(savePath,'val'), fixedNoise, *args)
     else:
         imList = listdir(valPath)
         for imName in imList:
-            patchNSave(
-                join(valPath, imName), patchSize, device, patchPerImg, join(savePath,'val'),fixedNoise,*args)
+            if isfile(join(valPath, imName)):
+                patchNSave(
+                    join(valPath, imName), patchSize, device, patchPerImg, join(savePath,'val'),fixedNoise,*args)
 
 def get_matrix(path,tp):
 

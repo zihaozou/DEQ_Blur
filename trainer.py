@@ -21,7 +21,7 @@ from torch.nn.functional import mse_loss
 @hydra.main(config_path="conf", config_name="config")
 def main(config):
     ## dataset
-    if config.data.hard_disk!=None:
+    if config.blur.data.hard_disk!=None:
         bk, bkt = get_matrix(config.blur.data.kernel_path,
                              config.blur.data.kernel_type)
         dataPrepareHD(config.blur.data.train_path,
@@ -29,11 +29,11 @@ def main(config):
                       config.blur.data.patch_size,
                       config.blur.data.patch_per_img,
                       config.blur.data.fixed_noise,
-                      config.data.hard_disk,
+                      config.blur.data.hard_disk,
                       config.blur.train.devices[0],
                       bk, config.blur.data.sigma)
-        trainset = BlurDatasetHD(join(config.data.hard_disk, 'train'))
-        valset = BlurDatasetHD(join(config.data.hard_disk, 'val'))
+        trainset = BlurDatasetHD(join(config.blur.data.hard_disk, 'train'))
+        valset = BlurDatasetHD(join(config.blur.data.hard_disk, 'val'))
     else:
         trainset,valset=dataPrepare(config.blur.data.train_path,config.blur.data.val_path,config.blur.data.patch_size,config.blur.data.patch_per_img,config.blur.train.devices[0])
         torch.cuda.empty_cache()
@@ -64,10 +64,10 @@ def main(config):
                     gamma=config.blur.model.red.gamma, tau=config.blur.model.red.tau)
     model=deq.DEQFixedPoint(ured,solver_img=deq.nesterov,solver_grad=deq.anderson,**config.blur.model.deq.kwargs)
     if config.blur.model.cnn.pretrained != None:
-        model.module.load_state_dict(torch.load(
+        model.f.dnn.load_state_dict(torch.load(
             config.blur.model.cnn.pretrained, map_location='cpu'))
     model=model.to(f'cuda:{config.blur.train.devices[0]}')
-    model = DataParallel(model, device_ids=config.blur.train.devices)
+    #model = DataParallel(model, device_ids=config.blur.train.devices)
     
 
     ## optimizer and scheduler

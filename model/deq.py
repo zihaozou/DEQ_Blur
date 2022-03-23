@@ -12,7 +12,7 @@ def nesterov(f, x0, max_iter=150):
     for k in range(max_iter):
 
         xnext = f(s)
-
+        
         # acceleration
 
         tnext = 0.5*(1+torch.sqrt(1+4*t*t))
@@ -22,12 +22,12 @@ def nesterov(f, x0, max_iter=150):
         # update
         t = tnext
         x = xnext
-
+        
         # res.append((x - s).norm().item()/(1e-5 + x.norm().item()))
         # if (res[-1] < tol):
         #     break
 
-    return x, res, None
+    return x
 
 def anderson(f, x0, m=5, lam=1e-4, max_iter=50, tol=1e-5, beta = 1.0):
     """ Anderson acceleration for fixed point iteration. """
@@ -95,8 +95,9 @@ class DEQFixedPoint(nn.Module):
         #tauList, gammaList,n_ipt_periter = None, None, None
         #bk,bkt = self.f.dObj.init(gt)
         # compute forward pass and re-engage autograd tape
-        z, self.forward_res, _ = self.solver_img(lambda z : self.f(z, n_y,  create_graph=False, strict=False), n_y, max_iter=100)
-        z =  self.f(z.detach(), n_y,  create_graph=self.training, strict=self.training)
+        z = self.solver_img(lambda z : self.f(z, n_y,  create_graph=False, strict=False), n_y, max_iter=100).detach().requires_grad_()
+        torch.cuda.empty_cache()
+        #z =  self.f(z.detach(), n_y,  create_graph=self.training, strict=self.training).detach()
         # set up Jacobian vector product (without additional forward calls)
         if self.training:
             z0 = z.clone().detach().requires_grad_()
