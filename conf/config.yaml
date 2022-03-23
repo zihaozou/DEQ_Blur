@@ -29,7 +29,7 @@ blur:
     sigma: 2.55
     patch_size: 256
     patch_per_img: 5
-    batch_size: 8
+    batch_size: 16
     num_workers: 8
     test_overlap: 30
   train:

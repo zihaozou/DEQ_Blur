@@ -1,6 +1,8 @@
 import os
+
+from utils.patchify import patchify
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-from os import mkdir
+from os import listdir, mkdir
 from os.path import join
 import numpy as np
 import torch
@@ -18,6 +20,7 @@ from torch.nn import DataParallel
 from tqdm import tqdm
 from skimage.metrics import peak_signal_noise_ratio as psnr
 from torch.nn.functional import mse_loss
+from PIL.Image import open as imopen
 @hydra.main(config_path="conf", config_name="config")
 def main(config):
     ## dataset
@@ -52,7 +55,14 @@ def main(config):
     valLoader = DataLoader(valset, batch_size=config.blur.data.batch_size,
                            shuffle=False, num_workers=config.blur.data.num_workers, pin_memory=True)
 
-
+    testImgs=[]
+    testLst=listdir(config.blur.data.three_imgs_path)
+    for imName in testLst:
+        im=torch.from_numpy(np.asarray(imopen(join(config.blur.data.three_imgs_path,imName))).transpose((2,0,1))).float().unsqueeze(0)/255.
+        if config.blur.data.fixed_noise:
+            im=(im,BlurClass.imfilter(
+                im, bk)+torch.FloatTensor(im.size()).normal_(0,std=config.blur.data.sigma/255.))
+        testImgs.append((imName,im))
     ## model
     dObj=BlurClass(bk,bkt)
     rObj = jacobinNet(DnCNN(depth=config.blur.model.cnn.depth, 
@@ -136,9 +146,22 @@ def main(config):
             logger.add_scalar('val/batchLoss', loss.item(),
                               e*len(trainLoader)+b)
         epochPSNR /= len(trainLoader)
+        logger.add_scalar('val/epochPSNR', epochPSNR, e)
         bestModel = {'model': model.module.state_dict(), 'optimizer': optimizer.state_dict(
         ), 'scheduler': scheduler.state_dict(), 'psnr': epochPSNR}
         torch.save(bestModel, 'ckpts', _use_new_zipfile_serialization=False)
-
+        for b,batch in enumerate(testImgs):
+            imName,batch=batch
+            if config.blur.data.fixed_noise:
+                gt, y = batch
+            else:
+                gt = batch
+                y = BlurClass.imfilter(
+                    gt, bk)+torch.FloatTensor(gt.size()).normal_(mean=0, std=config.blur.data.sigma/255.)
+            predX=model(y.to(f'cuda:{config.blur.train.devices[0]}')).detach().cpu()
+            testPSNR=psnr(gt.numpy(),
+                             predX.numpy(), data_range=1)
+            logger.add_scalar(f'val/{imName}', testPSNR, e)
+            
 if __name__=='__main__':
     main()
