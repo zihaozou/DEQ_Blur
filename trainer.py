@@ -1,6 +1,7 @@
 import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 from os import mkdir
+from os.path import join
 import numpy as np
 import torch
 import hydra
@@ -10,7 +11,7 @@ import model.deq as deq
 from model.blur import BlurClass
 from model.dnn import DnCNN
 from model.jacob import jacobinNet
-from dataset.dataset import BlurDataset,dataPrepare,get_matrix
+from dataset.dataset import BlurDataset, BlurDatasetHD,dataPrepare,get_matrix,dataPrepareHD
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 from torch.nn import DataParallel
@@ -20,19 +21,35 @@ from torch.nn.functional import mse_loss
 @hydra.main(config_path="conf", config_name="config")
 def main(config):
     ## dataset
-    trainset,valset=dataPrepare(config.blur.data.train_path,config.blur.data.val_path,config.blur.data.patch_size,config.blur.data.patch_per_img,config.blur.train.devices[0])
-    torch.cuda.empty_cache()
-    bk,bkt=get_matrix(config.blur.data.kernel_path,config.blur.data.kernel_type)
-    if config.blur.data.fixed_noise:
-        trainset = (trainset, BlurClass.imfilter(
-            trainset, bk)+torch.FloatTensor(trainset.size()).normal_(0,std=config.blur.data.sigma/255.))
-        valset = (valset, BlurClass.imfilter(
-            valset, bk)+torch.FloatTensor(valset.size()).normal_(0, std=config.blur.data.sigma/255.))
+    if config.data.hard_disk!=None:
+        bk, bkt = get_matrix(config.blur.data.kernel_path,
+                             config.blur.data.kernel_type)
+        dataPrepareHD(config.blur.data.train_path,
+                      config.blur.data.val_path, 
+                      config.blur.data.patch_size,
+                      config.blur.data.patch_per_img,
+                      config.blur.data.fixed_noise,
+                      config.data.hard_disk,
+                      config.blur.train.devices[0],
+                      bk, config.blur.data.sigma)
+        trainset = BlurDatasetHD(join(config.data.hard_disk, 'train'))
+        valset = BlurDatasetHD(join(config.data.hard_disk, 'val'))
     else:
-        trainset=[trainset]
-        valset=[valset]
-    trainLoader=DataLoader(BlurDataset(*trainset),batch_size=config.blur.data.batch_size,shuffle=True,num_workers=config.blur.data.num_workers,pin_memory=True,drop_last=True)
-    valLoader = DataLoader(BlurDataset(*valset), batch_size=config.blur.data.batch_size,
+        trainset,valset=dataPrepare(config.blur.data.train_path,config.blur.data.val_path,config.blur.data.patch_size,config.blur.data.patch_per_img,config.blur.train.devices[0])
+        torch.cuda.empty_cache()
+        bk,bkt=get_matrix(config.blur.data.kernel_path,config.blur.data.kernel_type)
+        if config.blur.data.fixed_noise:
+            trainset = (trainset, BlurClass.imfilter(
+                trainset, bk)+torch.FloatTensor(trainset.size()).normal_(0,std=config.blur.data.sigma/255.))
+            valset = (valset, BlurClass.imfilter(
+                valset, bk)+torch.FloatTensor(valset.size()).normal_(0, std=config.blur.data.sigma/255.))
+        else:
+            trainset=[trainset]
+            valset=[valset]
+        trainset=BlurDataset(*trainset)
+        valset = BlurDataset(*valset)
+    trainLoader=DataLoader(trainset,batch_size=config.blur.data.batch_size,shuffle=True,num_workers=config.blur.data.num_workers,pin_memory=True,drop_last=True)
+    valLoader = DataLoader(valset, batch_size=config.blur.data.batch_size,
                            shuffle=False, num_workers=config.blur.data.num_workers, pin_memory=True)
 
 
