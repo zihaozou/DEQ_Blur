@@ -43,6 +43,6 @@ blur:
     scheduler:
       type: MultiStepLR
       kwargs:
-        milestones: [8]
-        gamma: 1e-4/5e-4
+        milestones: [8,26]
+        gamma: [0.5]
     

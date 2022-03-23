@@ -76,7 +76,7 @@ class URED(nn.Module):
     def forward(self, n_ipt, n_y, create_graph=False, strict=False):
         #tau = self.tau if self.tau - 0.28 <= 0 else 0.28
         delta_g = self.dObj.grad(n_ipt, n_y)
-        xSubD    = self.tau * (self.dnn(n_ipt, create_graph, strict))
+        xSubD    = torch.abs(self.tau) * (self.dnn(n_ipt, create_graph, strict))
         xnext  =  n_ipt - self.gamma * (delta_g.detach() + xSubD) # torch.Size([1, 1, H, W, 2])
         xnext[xnext<=0] = 0
         # snr_ = compare_snr(xnext, gt).item()
