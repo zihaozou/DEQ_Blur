@@ -20,7 +20,6 @@ class BlurClass(nn.Module):
         x: image, NxcxHxW
         k: kernel, cx1xhxw
         '''
-        with torch.no_grad():
-            x = pad(x, pad=((k.shape[-2] - 1) // 2,(k.shape[-2] - 1) // 2, (k.shape[-1] - 1) // 2,(k.shape[-1] - 1) // 2), mode='circular')
-            x = conv2d(x, k, groups=x.shape[1])
+        x = pad(x, pad=((k.shape[-2] - 1) // 2,(k.shape[-2] - 1) // 2, (k.shape[-1] - 1) // 2,(k.shape[-1] - 1) // 2), mode='circular')
+        x = conv2d(x, k, groups=x.shape[1])
         return x

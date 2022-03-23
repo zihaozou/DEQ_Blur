@@ -77,7 +77,7 @@ def main(config):
         model.f.dnn.load_state_dict(torch.load(
             config.blur.model.cnn.pretrained, map_location='cpu'))
     model=model.to(f'cuda:{config.blur.train.devices[0]}')
-    #model = DataParallel(model, device_ids=config.blur.train.devices)
+    model = DataParallel(model, device_ids=config.blur.train.devices)
     
 
     ## optimizer and scheduler
@@ -102,6 +102,7 @@ def main(config):
         model.train()
         epochPSNR=0
         for b,batch in enumerate(trainLoader):
+            #torch.cuda.empty_cache()
             optimizer.zero_grad()
             if config.blur.data.fixed_noise:
                 gt,y=batch
@@ -121,11 +122,10 @@ def main(config):
 
             logger.add_scalar('train/tau',model.module.f.tau.data.item(), e*len(trainLoader)+b)
             epochPSNR+=loss.item()
-            if b%15==0:
-                bar.set_description(f'PSNR:{batchPSNR:.2f}')
+            bar.set_description(f'{b}:PSNR={batchPSNR:.2f}')
         epochPSNR/=len(trainLoader)
         logger.add_scalar('train/epochPSNR', epochPSNR, e)
-
+        scheduler.step()
         model.eval()
         epochPSNR = 0
         for b,batch in enumerate(valLoader):
@@ -149,7 +149,7 @@ def main(config):
         logger.add_scalar('val/epochPSNR', epochPSNR, e)
         bestModel = {'model': model.module.state_dict(), 'optimizer': optimizer.state_dict(
         ), 'scheduler': scheduler.state_dict(), 'psnr': epochPSNR}
-        torch.save(bestModel, 'ckpts', _use_new_zipfile_serialization=False)
+        torch.save(bestModel, f'ckpts/epoch_{e}_{epochPSNR:.2f}.pt', _use_new_zipfile_serialization=False)
         for b,batch in enumerate(testImgs):
             imName,batch=batch
             if config.blur.data.fixed_noise:
