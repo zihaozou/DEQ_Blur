@@ -95,9 +95,9 @@ class DEQFixedPoint(nn.Module):
         #tauList, gammaList,n_ipt_periter = None, None, None
         #bk,bkt = self.f.dObj.init(gt)
         # compute forward pass and re-engage autograd tape
-        z = self.solver_img(lambda z : self.f(z, n_y,  create_graph=False, strict=False), n_y, max_iter=100).detach().requires_grad_()
+        z = self.solver_img(lambda z : self.f(z, n_y,  create_graph=False, strict=False), n_y, max_iter=100).detach()
         #torch.cuda.empty_cache()
-        #z =  self.f(z.detach(), n_y,  create_graph=self.training, strict=self.training).detach()
+        z =  self.f(z, n_y,  create_graph=self.training, strict=self.training)
         # set up Jacobian vector product (without additional forward calls)
         if self.training:
             z0 = z.clone().detach().requires_grad_()

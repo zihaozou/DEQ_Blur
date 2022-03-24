@@ -109,8 +109,8 @@ def main(config):
             else:
                 gt=batch
                 y = BlurClass.imfilter(gt, bk)+torch.FloatTensor(gt.size()).normal_(mean=0, std=config.blur.data.sigma/255.)
-            gt = gt.to(f'cuda:{config.blur.train.devices[0]}')
-            y = y.to(f'cuda:{config.blur.train.devices[0]}')
+            gt = gt.to(f'cuda:{config.blur.train.devices[0]}').detach()
+            y = y.to(f'cuda:{config.blur.train.devices[0]}').detach()
             predX=model(y)
             loss = mse_loss(predX,gt)
             loss.backward()
@@ -121,7 +121,7 @@ def main(config):
                                 e*len(trainLoader)+b)
             logger.add_scalar('train/tau',model.module.f.tau.data.item(), e*len(trainLoader)+b)
             epochPSNR+=loss.item()
-            bar.set_description(f'{b}:PSNR={batchPSNR:.2f}')
+            bar.set_description(f'{b}/{len(trainLoader)}:PSNR={batchPSNR:.2f}')
         epochPSNR/=len(trainLoader)
         logger.add_scalar('train/epochPSNR', epochPSNR, e)
         scheduler.step()
@@ -141,10 +141,10 @@ def main(config):
             batchPSNR = psnr(gt.detach().cpu().numpy(),
                              predX.detach().cpu().numpy(), data_range=1)
             logger.add_scalar('val/batchPSNR', batchPSNR,
-                              e*len(trainLoader)+b)
+                              e*len(valLoader)+b)
             logger.add_scalar('val/batchLoss', loss.item(),
-                              e*len(trainLoader)+b)
-        epochPSNR /= len(trainLoader)
+                              e*len(valLoader)+b)
+        epochPSNR /= len(valLoader)
         logger.add_scalar('val/epochPSNR', epochPSNR, e)
         bestModel = {'model': model.module.state_dict(), 'optimizer': optimizer.state_dict(
         ), 'scheduler': scheduler.state_dict(), 'psnr': epochPSNR}

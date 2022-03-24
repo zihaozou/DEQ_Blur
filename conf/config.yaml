@@ -2,11 +2,11 @@ hydra:
   run:
     dir: ./outputs/pretrain-${blur.exp_name}_k-${blur.data.kernel_type}_sigma-${blur.data.sigma}/${now:%Y-%m-%d-%H-%M-%S}/
 blur:
-  exp_name: best5
+  exp_name: sigma3
   model:
     warmup: null
     cnn:
-      pretrained: /export1/project/zihao/DEQ_Blur/best5.pt
+      pretrained: /export1/project/zihao/DEQ_Blur/sigma_3.0.pt
       depth: 12
       in_chans: 3
       out_chans: 3
@@ -29,13 +29,13 @@ blur:
     sigma: 2.55
     patch_size: 256
     patch_per_img: 5
-    batch_size: 16
+    batch_size: 10
     num_workers: 8
     test_overlap: 30
   train:
     num_epoches: 30
 
-    devices: [0,1]
+    devices: [2,3]
     optimizer:
       type: Adam
       kwargs:
