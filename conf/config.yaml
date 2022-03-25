@@ -2,11 +2,11 @@ hydra:
   run:
     dir: ./outputs/pretrain-${blur.exp_name}_k-${blur.data.kernel_type}_sigma-${blur.data.sigma}/${now:%Y-%m-%d-%H-%M-%S}/
 blur:
-  exp_name: sigma3
+  exp_name: best5
   model:
-    warmup: null
+    warmup: /export1/project/zihao/DEQ_Blur/outputs/pretrain-best5_k-k4_sigma-2.55/2022-03-24-15-17-14/ckpts/epoch_0_0.00.pt
     cnn:
-      pretrained: /export1/project/zihao/DEQ_Blur/sigma_3.0.pt
+      pretrained: /export1/project/zihao/DEQ_Blur/best5.pt
       depth: 12
       in_chans: 3
       out_chans: 3
@@ -20,29 +20,29 @@ blur:
         tol: 1e-5
   data:
     hard_disk: "."
-    train_path: ["/export1/project/Jiaming/fixpoint/Data/DIV2K_A","/export1/project/Jiaming/fixpoint/Data/CBSD400","/export1/project/Jiaming/fixpoint/Data/DIV2K_B"]
-    val_path: /export1/project/Jiaming/fixpoint/Data/Set5
-    three_imgs_path: /export1/project/Jiaming/fixpoint/Data/set3c
-    kernel_path: /export1/project/Jiaming/ZihaoZou/deq_run_deblur/data/kernels/L09.mat
+    train_path: ["/export1/project/Data_shirin/Data/DIV2K","/export1/project/Data_shirin/Data/CBSD400"]
+    val_path: /export1/project/Data_shirin/Data/Set5
+    three_imgs_path: /export1/project/zihao/DEQ_Blur/set3c
+    kernel_path: /export1/project/zihao/DEQ_Blur/kernels/L09.mat
     kernel_type: k4
     fixed_noise: true
     sigma: 2.55
     patch_size: 256
     patch_per_img: 5
-    batch_size: 16
+    batch_size: 8
     num_workers: 8
     test_overlap: 30
   train:
     num_epoches: 30
 
-    devices: [4,5,6,7]
+    devices: [0,1]
     optimizer:
       type: Adam
       kwargs:
-        lr: 5e-4
+        lr: 2e-4
     scheduler:
-      type: MultiStepLR
+      type: ExponentialLR
       kwargs:
-        milestones: [8,26]
-        gamma: [0.5]
+        gamma: 0.95
+    
     
