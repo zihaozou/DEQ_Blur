@@ -120,7 +120,7 @@ def main(config):
             logger.add_scalar('train/batchLoss', loss.item(),
                                 e*len(trainLoader)+b)
             logger.add_scalar('train/tau',model.module.f.tau.data.item(), e*len(trainLoader)+b)
-            epochPSNR+=loss.item()
+            epochPSNR+=batchPSNR
             bar.set_description(f'{b}/{len(trainLoader)}:PSNR={batchPSNR:.2f}')
         epochPSNR/=len(trainLoader)
         logger.add_scalar('train/epochPSNR', epochPSNR, e)
@@ -144,6 +144,7 @@ def main(config):
                               e*len(valLoader)+b)
             logger.add_scalar('val/batchLoss', loss.item(),
                               e*len(valLoader)+b)
+            epochPSNR+=batchPSNR
         epochPSNR /= len(valLoader)
         logger.add_scalar('val/epochPSNR', epochPSNR, e)
         bestModel = {'model': model.module.state_dict(), 'optimizer': optimizer.state_dict(
