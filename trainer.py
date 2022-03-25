@@ -1,7 +1,7 @@
 import os
-
-from utils.patchify import patchify
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+from utils.patchify import patchify
+
 from os import listdir, mkdir
 from os.path import join
 import numpy as np
