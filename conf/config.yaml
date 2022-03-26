@@ -2,11 +2,15 @@ hydra:
   run:
     dir: ./outputs/pretrain-${blur.exp_name}_k-${blur.data.kernel_type}_sigma-${blur.data.sigma}/${now:%Y-%m-%d-%H-%M-%S}/
 blur:
-  exp_name: best5
+  exp_name: sigma_3
   model:
+<<<<<<< HEAD
     warmup: /export1/project/zihao/DEQ_Blur/outputs/pretrain-best5_k-k4_sigma-2.55/2022-03-25-11-44-18/ckpts/epoch_1_34.40.pt
+=======
+    warmup: /export1/project/zihao/DEQ_Blur/outputs/pretrain-best5_k-k4_sigma-2.55/2022-03-25-11-39-38/ckpts/epoch_0_34.95.pt
+>>>>>>> 91b7113abe58aefb8f75f3ea035049b0fd078cf1
     cnn:
-      pretrained: /export1/project/zihao/DEQ_Blur/best5.pt
+      pretrained: /export1/project/zihao/DEQ_Blur/sigma_3.0.pt
       depth: 12
       in_chans: 3
       out_chans: 3
@@ -20,12 +24,12 @@ blur:
         tol: 1e-5
   data:
     hard_disk: "."
-    train_path: ["/export1/project/Data_shirin/Data/DIV2K","/export1/project/Data_shirin/Data/CBSD400"]
-    val_path: /export1/project/Data_shirin/Data/Set5
-    three_imgs_path: /export1/project/zihao/DEQ_Blur/set3c
-    kernel_path: /export1/project/zihao/DEQ_Blur/kernels/L09.mat
+    train_path: ["/export1/project/Jiaming/fixpoint/Data/DIV2K_A","/export1/project/Jiaming/fixpoint/Data/CBSD400","/export1/project/Jiaming/fixpoint/Data/DIV2K_B"]
+    val_path: /export1/project/Jiaming/fixpoint/Data/Set5
+    three_imgs_path: /export1/project/Jiaming/fixpoint/Data/set3c
+    kernel_path: /export1/project/Jiaming/ZihaoZou/deq_run_deblur/data/kernels/L09.mat
     kernel_type: k4
-    fixed_noise: true
+    fixed_noise: false
     sigma: 2.55
     patch_size: 256
     patch_per_img: 5
@@ -33,16 +37,16 @@ blur:
     num_workers: 8
     test_overlap: 30
   train:
-    num_epoches: 30
+    num_epoches: 10
 
-    devices: [2,3]
+    devices: [4,5]
     optimizer:
       type: Adam
       kwargs:
         lr: 7e-5
     scheduler:
-      type: ExponentialLR
+      type: ExponentialLR 
       kwargs:
-        gamma: 0.95
+        gamma: 0.7
     
     

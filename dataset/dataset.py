@@ -12,6 +12,7 @@ from scipy.io import loadmat
 from omegaconf import ListConfig
 from model.blur import BlurClass
 from tqdm import tqdm
+from math import ceil
 class BlurDataset(Dataset):
     def __init__(self, gdt, y=None):
         super(BlurDataset, self).__init__()
@@ -46,7 +47,7 @@ def patchImg(imPath, patchSize, device, patchPerImg):
     patchedImg = patchedImg.reshape(
         patchedImg.shape[1], 3, patchSize, patchSize).detach().cpu()
     if isinstance(patchPerImg,float):
-        patchPerImg=int(patchedImg.shape[0]*patchPerImg)
+        patchPerImg=ceil(patchedImg.shape[0]*patchPerImg)
     patchedImg = patchedImg[np.random.choice(
         np.arange(patchedImg.shape[0]), min(patchedImg.shape[0], patchPerImg),replace=False), ...]
     return patchedImg
@@ -122,7 +123,7 @@ def patchNSave(imPath, patchSize, device, patchPerImg,savePath,fixedNoise,*args)
     patchedImg = patchedImg.reshape(
         patchedImg.shape[1], 3, patchSize, patchSize).detach().cpu()
     if isinstance(patchPerImg,float):
-        patchPerImg=int(patchedImg.shape[0]*patchPerImg)
+        patchPerImg=ceil(patchedImg.shape[0]*patchPerImg)
     saveIdx=np.random.choice(
         np.arange(patchedImg.shape[0]), min(patchedImg.shape[0], patchPerImg), replace=False)
     
