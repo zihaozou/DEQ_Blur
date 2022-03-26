@@ -90,8 +90,8 @@ def main(config):
         warmUpDict = torch.load(
             config.blur.model.warmup, map_location=f'cuda:{config.blur.train.devices[0]}')
         model.module.load_state_dict(warmUpDict['model'])
-        optimizer.load_state_dict(warmUpDict['optimizer'])
-        scheduler.load_state_dict(warmUpDict['scheduler'])
+        #optimizer.load_state_dict(warmUpDict['optimizer'])
+        #scheduler.load_state_dict(warmUpDict['scheduler'])
     logger=SummaryWriter(log_dir='logs')
     mkdir('ckpts')
 
