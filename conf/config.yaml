@@ -35,7 +35,7 @@ blur:
   train:
     num_epoches: 30
 
-    devices: [0,1]
+    devices: [2,3]
     optimizer:
       type: Adam
       kwargs:
