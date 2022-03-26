@@ -4,7 +4,7 @@ hydra:
 blur:
   exp_name: best5
   model:
-    warmup: /export1/project/zihao/DEQ_Blur/outputs/pretrain-best5_k-k4_sigma-2.55/2022-03-24-15-17-14/ckpts/epoch_0_0.00.pt
+    warmup: /export1/project/zihao/DEQ_Blur/outputs/pretrain-best5_k-k4_sigma-2.55/2022-03-25-11-44-18/ckpts/epoch_1_34.40.pt
     cnn:
       pretrained: /export1/project/zihao/DEQ_Blur/best5.pt
       depth: 12
@@ -39,7 +39,7 @@ blur:
     optimizer:
       type: Adam
       kwargs:
-        lr: 2e-4
+        lr: 7e-5
     scheduler:
       type: ExponentialLR
       kwargs:

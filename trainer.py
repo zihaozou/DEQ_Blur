@@ -94,13 +94,14 @@ def main(config):
         #scheduler.load_state_dict(warmUpDict['scheduler'])
     logger=SummaryWriter(log_dir='logs')
     mkdir('ckpts')
-
+    for g in optimizer.param_groups:
+        g['lr'] = config.blur.train.optimizer.kwargs.lr
 
 
     ## train
     for e in (bar:=tqdm(iterable=range(config.blur.train.num_epoches))):
         model.train()
-        lrReducer=lr_scher.ReduceLROnPlateau(optimizer,mode='min',factor=0.8,patience=30,threshold=1e-6,cooldown=20,min_lr=1e-6,verbose=True)
+        #lrReducer=lr_scher.ReduceLROnPlateau(optimizer,mode='min',factor=0.8,patience=30,threshold=1e-6,cooldown=20,min_lr=1e-6,verbose=True)
         epochPSNR=0
         for b,batch in enumerate(trainLoader):
             #torch.cuda.empty_cache()
@@ -115,7 +116,7 @@ def main(config):
             predX=model(y)
             loss = mse_loss(predX,gt)
             loss.backward()
-            lrReducer.step(loss)
+            #lrReducer.step(loss)
             optimizer.step()
             batchPSNR=psnr(gt.detach().cpu().numpy(),predX.detach().cpu().numpy(),data_range=1)
             logger.add_scalar('train/batchPSNR',batchPSNR,e*len(trainLoader)+b)
