@@ -1,12 +1,12 @@
 hydra:
   run:
-    dir: ./outputs/pretrain-${blur.exp_name}_k-${blur.data.kernel_type}_sigma-${blur.data.sigma}/${now:%Y-%m-%d-%H-%M-%S}/
+    dir: ./outputs/exp-${blur.exp_name}_k-${blur.data.kernel_type}_sigma-${blur.data.sigma}/${now:%Y-%m-%d-%H-%M-%S}/
 blur:
-  exp_name: sigma_3
+  exp_name: sigma_7.65
   model:
-    warmup: /export1/project/zihao/DEQ_Blur/outputs/pretrain-best5_k-k4_sigma-2.55/2022-03-25-11-44-18/ckpts/epoch_1_34.40.pt
+    warmup: null #/export1/project/zihao/DEQ_Blur/outputs/pretrain-sigma_3_k-k2_sigma-2.55/2022-03-26-19-19-45/ckpts/epoch_4_33.91.pt
     cnn:
-      pretrained: /export1/project/zihao/DEQ_Blur/sigma_3.0.pt
+      pretrained: /export1/project/zihao/DEQ_Blur/best7.pt
       depth: 12
       in_chans: 3
       out_chans: 3
@@ -20,29 +20,29 @@ blur:
         tol: 1e-5
   data:
     hard_disk: "."
-    train_path: ["/export1/project/Jiaming/fixpoint/Data/DIV2K_A","/export1/project/Jiaming/fixpoint/Data/CBSD400","/export1/project/Jiaming/fixpoint/Data/DIV2K_B"]
-    val_path: /export1/project/Jiaming/fixpoint/Data/Set5
-    three_imgs_path: /export1/project/Jiaming/fixpoint/Data/set3c
-    kernel_path: /export1/project/Jiaming/ZihaoZou/deq_run_deblur/data/kernels/L09.mat
-    kernel_type: k4
+    train_path: ["/export1/project/Data_shirin/Data/DIV2K","/export1/project/Data_shirin/Data/CBSD400"]
+    val_path: /export1/project/Data_shirin/Data/Set5
+    three_imgs_path: /export1/project/zihao/DEQ_Blur/set3c
+    kernel_path: /export1/project/zihao/DEQ_Blur/kernels/L09.mat
+    kernel_type: k2
     fixed_noise: false
-    sigma: 2.55
+    sigma: 7.65
     patch_size: 256
     patch_per_img: 5
-    batch_size: 8
+    batch_size: 20
     num_workers: 8
     test_overlap: 30
   train:
-    num_epoches: 10
+    num_epoches: 15
 
-    devices: [4,5]
+    devices: [0,1,2,3]
     optimizer:
       type: Adam
       kwargs:
-        lr: 7e-5
+        lr: 5e-4
     scheduler:
-      type: ExponentialLR 
+      type: ExponentialLR
       kwargs:
-        gamma: 0.7
+        gamma: 0.8
     
     
