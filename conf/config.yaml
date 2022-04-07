@@ -4,9 +4,9 @@ hydra:
 blur:
   exp_name: sigma_7.65
   model:
-    warmup: null #/export1/project/zihao/DEQ_Blur/outputs/pretrain-sigma_3_k-k2_sigma-2.55/2022-03-26-19-19-45/ckpts/epoch_4_33.91.pt
+    warmup: /export1/project/zihao/DEQ_Blur/epoch_9_31.66.pt
     cnn:
-      pretrained: /export1/project/zihao/DEQ_Blur/best7.pt
+      pretrained: /export1/project/zihao/DEQ_Blur/pretrained_denoiser/best7.pt
       depth: 12
       in_chans: 3
       out_chans: 3
@@ -29,17 +29,17 @@ blur:
     sigma: 7.65
     patch_size: 256
     patch_per_img: 5
-    batch_size: 20
+    batch_size: 15
     num_workers: 8
     test_overlap: 30
   train:
-    num_epoches: 15
+    num_epoches: 6
 
-    devices: [0,1,2,3]
+    devices: [1,2,3]
     optimizer:
       type: Adam
       kwargs:
-        lr: 5e-4
+        lr: 1e-5
     scheduler:
       type: ExponentialLR
       kwargs:
